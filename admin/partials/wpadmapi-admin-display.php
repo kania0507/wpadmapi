@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Provide a admin area view for the plugin
  *
@@ -16,28 +15,68 @@
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap">
 		        <div id="icon-themes" class="icon32"></div>  
-		        <h2>Plugin Name Settings</h2>  
-		         <!--NEED THE settings_errors below so that the errors/success messages are shown after submission - wasn't working once we started using add_menu_page and stopped using add_options_page so needed this-->
-				<?php settings_errors(); ?>  
-		        <form method="POST" action="options.php">  
-		            <?php 
-		                settings_fields( 'plugin_name_general_settings' );
-		                do_settings_sections( 'plugin_name_general_settings' ); 
-		            ?>             
-		            <?php submit_button(); ?>  
-		        </form> 
-
-    <div class="grid">
-   
+                <h2><?php  echo basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) );; ?> settings</h2>  
+		         
+    <div >
+    
 <?php 
 if (count($cluesArray)>0)
-      foreach ($cluesArray as $key => $value) {
-        echo "<span>". $value["question"] . "? </span><span>" . $value["answer"] . "</span><span><button>SAVE & POST</button>"."</span>";
-          //echo  $value["id"].'. '.$value["question"] . "? " . $value["answer"] . ", " . $value["value"] .', '.$value["category"]["title"]. " <button>SAVE & POST</button>"."<br>";
+    foreach ($cluesArray as $key => $value) {
+        ?>
+        <form method="POST" action="<?php //echo admin_url('admin-ajax.php'); ?>"> 
+                    <?php wp_nonce_field('add_new_cpt','security-code-here'); ?>
+                    <input name="action" value="add_new_cpt" type="hidden">
+                    <?php
 
-      }
+        if (isset($_POST['save'])) {
+            $q = esc_attr($_POST['q']);
+            $a = esc_attr($_POST['a']);
+        } else {
+            $q = esc_attr($value["question"]);
+            $a = esc_attr($value["answer"]);
+        }
+
+        echo "<input type='hidden' name='q' value='".$q."' />";
+        echo "<input type='hidden' name='a' value='".$a."' />";
+
+        echo "<span>". $value["question"] . "? </span><span>" . $value["answer"] . "</span>";
+        echo "<span><input name='save' type='submit' value='SAVE & POST'></input></span>";
+        
+        ?>
+        </form> 
+        <?php
+    }
 ?>
 
-    </div>
 
+    </div>
+    
 </div>
+
+<?php 
+
+if (isset($_POST['save']))
+{
+    $post_title =$q;
+    $post_body = $a;
+    
+    //$post_title    = sanitize_text_field($_POST['q']); 
+    //$post_body =  sanitize_text_field($_POST['a']); 
+   
+    $my_post = array(
+        'post_title'  => $post_title,
+        'post_status' => 'publish',
+        'post_type'   => 'geopardy',
+        'post_content' => $post_body
+    );
+    
+    if (post_exists($post_title) == 0 )  {
+       wp_insert_post( $my_post ); 
+       echo "New";
+    }
+    
+} else {
+    $post_title='';
+    $post_body='';
+}
+

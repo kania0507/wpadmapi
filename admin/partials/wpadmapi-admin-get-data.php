@@ -34,8 +34,6 @@ curl_setopt_array($curl, array(
 $response = curl_exec($curl);
 $err = curl_error($curl);
 
-curl_close($curl);
+curl_close($curl); 
 
-
-
-$cluesArray = json_decode($response, true);
+$cluesArray = json_decode($response, true); 

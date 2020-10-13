@@ -53,8 +53,11 @@ class Wpadmapi_Admin {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
+		
+	
 		add_action('admin_menu', array( $this, 'addPluginAdminMenu' ), 9);   
 		add_action('admin_init', array( $this, 'registerAndBuildFields' ));
+		add_action( 'init', array( $this, 'create_posttype' ) );
 
 	}
 
@@ -246,6 +249,35 @@ switch ($args['type']) {
 	   # code...
 	   break;
 }
+}
+
+
+// Our custom post type function
+public function create_posttype() {
+ 
+    register_post_type( 'geopardy',
+    // CPT Options
+        array(
+            'labels' => array(
+                'name' => __( 'geopardys' ),
+                'singular_name' => __( 'geopardy' )
+            ),
+            'public' => true,
+            'has_archive' => true,
+            'rewrite' => array('slug' => 'geopardy'),
+            'show_in_rest' => true,
+            'rest_base' => 'geopardys' ,
+            'supports' => ['title', 'editor', 'revisions', 'page-attributes', 'thumbnail'],
+            'show_ui' => true,
+            'capability_type' => 'post',
+            'hierarchical' => false,
+            'show_in_menu' => true,
+            'menu_position' => 21,
+            'show_in_nav_menus' => true,
+            "query_var" => true,
+            'publicly_queryable' => true
+        )
+    );
 }
 
 }
