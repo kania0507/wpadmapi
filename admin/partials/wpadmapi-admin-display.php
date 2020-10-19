@@ -15,11 +15,28 @@
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap">
 		        <div id="icon-themes" class="icon32"></div>  
-                <h2><?php  echo basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) );; ?> settings</h2>  
-		         
+                <h2><?php  echo basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) ); ?> settings</h2>  
+                 
+                <form action="admin.php?page=<?php  echo basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) ); ?>" method="GET">
+                    <input type="text" name="sq" /> 
+                    <input type='hidden' name='page' value='<?php  echo basename( plugin_dir_path(  dirname( __FILE__ , 2 ) ) ); ?>' />
+                    <input type="submit" name="search" value="Search" />
+                </form>
     <div >
+        <br />
     
 <?php 
+$m_array=[];
+if (isset($_GET['sq']) && count($cluesArray)>0)
+{
+    $gkey = array_search('%'.$_GET['sq'].'%', $cluesArray);
+    echo "Searching: <b>".$_GET['sq'].'</b><br />' ;
+
+    $pattern = '*'.$_GET['sq'].'*';
+    $m_array = preg_grep($pattern, array_column($cluesArray, 'question' ));
+    echo count($m_array). " results found.";
+}
+
 if (count($cluesArray)>0)
     foreach ($cluesArray as $key => $value) {
         ?>
@@ -31,17 +48,24 @@ if (count($cluesArray)>0)
         if (isset($_POST['save'])) {
             $q = esc_attr($_POST['q']);
             $a = esc_attr($_POST['a']);
-        } else {
+        } else  {
             $q = esc_attr($value["question"]);
             $a = esc_attr($value["answer"]);
         }
 
         echo "<input type='hidden' name='q' value='".$q."' />";
         echo "<input type='hidden' name='a' value='".$a."' />";
+        
 
-        echo "<span>". $value["question"] . "? </span><span>" . $value["answer"] . "</span>";
+        if ( count($m_array)>0 && array_key_exists($key, $m_array)  ) {
+            $class="style='color:red'";             
+        } else  $class='';
+            
+        
+        echo  " <span ".$class.">". $value["question"] . "? </span><span>" . $value["answer"] . "</span>";
         echo "<span><input name='save' type='submit' value='SAVE & POST'></input></span>";
         
+         
         ?>
         </form> 
         <?php
